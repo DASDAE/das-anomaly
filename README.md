@@ -7,7 +7,7 @@ _das-anomaly_ is an open-source Python package for unsupervised anomaly detectio
 
 If you use _das-anomaly_ in your work, please cite the following:
 
-> Ahmad Tourei. (2025). ahmadtourei/das-anomaly: latest (Concept). Zenodo. http://doi.org/10.5281/zenodo.12747212
+> Ahmad Tourei. (2025). DASDAE/das-anomaly: latest (Concept). Zenodo. http://doi.org/10.5281/zenodo.12747212
 
 
 ## Installation
