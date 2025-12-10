@@ -11,7 +11,7 @@ echo "Job started at: $(date)"
 module load openmpi/gcc/64/4.1.5
 source activate dasanomaly
 
-# Recommended in a SLURM environment: use srun, not mpirun
+# Run with MPI 
 mpirun -n $SLURM_NTASKS python -u psd_parallel.py
 
 # Print end time
