@@ -1,7 +1,7 @@
 # das-anomaly
 [![DOI](https://zenodo.org/badge/823391484.svg)](https://doi.org/10.5281/zenodo.12747212)
 [![Licence](https://www.gnu.org/graphics/lgplv3-88x31.png)](https://www.gnu.org/licenses/lgpl.html)
-[![codecov](https://codecov.io/gh/ahmadtourei/das-anomaly/branch/main/graph/badge.svg)](https://codecov.io/gh/ahmadtourei/das-anomaly)
+[![codecov](https://codecov.io/gh/dasdae/das-anomaly/branch/main/graph/badge.svg)](https://codecov.io/gh/dasdae/das-anomaly)
 
 _das-anomaly_ is an open-source Python package for unsupervised anomaly detection in distributed acoustic sensing (DAS) datasets using an autoencoder-based deep learning algorithm. It is being developed by Ahmad Tourei under the supervision of Dr. Eileen R. Martin at Colorado School of Mines. 
 
@@ -77,7 +77,7 @@ The overall workflow for using the package is illustrated below:
 The main steps are:  
 1. Define constants and create a Spool of data: 
 
-Using the _config_user_ script in the das_anomaly directory, define the constants and directory paths for data, power spectral density (PSD) images, detected anomaly results, etc. You would complete adding the values as you go over the steps mentioned below. Then, using DASCore, create an index file for the [spool](https://dascore.org/tutorial/spool.html) of data first time reading the DAS data directory:
+Using the _config_user_ script in the das_anomaly directory, define the constants and directory paths for the data, power spectral density (PSD) images, detected anomaly results, etc. You would complete adding the values and paths as you go over the steps mentioned below. Then, using DASCore, create an index file for the [spool](https://dascore.org/tutorial/spool.html) of data first time reading the DAS data directory:
 
 ### Example
 ```python
@@ -99,17 +99,17 @@ To ensure all PSD images share the same colorbar scale (in RGB), determine an ap
 from das_anomaly.psd import PSDConfig, PSDGenerator
 from das_anomaly.settings import SETTINGS
 
-# path to one or a few background noise data 
+# path to one or a few background noise patches 
 bn_data_path = SETTINGS.BN_DATA_PATH
 cfg = PSDConfig(data_path=bn_data_path)
 gen = PSDGenerator(cfg)
-percentile = 90 # data dependent
+percentile = 90 # data dependent - need visual inspection
 clip_val = gen.run_get_psd_val(percentile=percentile)
 print(f"Mean {percentile}-percentile amplitude across all patches: {clip_val:.3e}")
 ```
 3. Generate PSD plots: 
 
-Use the `das_anomaly.psd` module and create PSD plots in RGB format and in plain mode (with no axes or colorbar). The `das_anomaly.psd.PSDGenerator reads DAS data, creates a spool using DASCore library, applies a detrend function to each patch of the chunked spool, and then average the energy over a desired time window and stack all channels together to create a spatial PSD with channels on the X-axis and frequency on the Y-axis. You can use MPI to distribute reading data and plotting PSDs over CPUs. 
+Use the `das_anomaly.psd` module and create PSD plots in RGB format and in plain mode (with no axes or colorbar). The `das_anomaly.psd.PSDGenerator` reads DAS data, creates a spool using DASCore library, applies a detrend function to each patch of the chunked spool, and then average the energy over a desired time window and stack all channels together to create a spatial PSD image with channels on the X-axis and frequency on the Y-axis. You can use MPI to embarrassingly distribute reading data and plotting PSDs over CPUs. 
 ### Example
 ```python
 from das_anomaly.psd import PSDConfig, PSDGenerator
@@ -121,6 +121,7 @@ PSDGenerator(cfg).run()
 PSDGenerator(cfg).run_parallel()
 ```
 Note: If you'd like to use PSDs for purposes other than training the model, the `hide_axes=False` will plot the PSD with axes and colorbar (default is True).
+
 ### Example
 ```python
 from das_anomaly.psd import PSDConfig, PSDGenerator
@@ -128,16 +129,17 @@ from das_anomaly.psd import PSDConfig, PSDGenerator
 cfg = PSDConfig(hide_axes=False)
 # serial processing with single processor:
 PSDGenerator(cfg).run()
-# parallel processing with multiple processors using MPI:
+# parallel processing with multiple processors using MPI (first, make sure you've installed the package with all dependencies explained above):
 PSDGenerator(cfg).run_parallel()
 ```
 4. Select and copy known anomaly PSD plots:
 
-From the generated PSD plots, identify and copy examples of known anomalies to the ANOMALY_IMAGES_PATH specified in the _config_user_ input script. These anomalies can include events such as earthquakes from an existing catalog, instrument noise, anthropogenic disturbances, etc. Including these examples helps improve thresholding during the detection process.
+From the generated PSD plots, visually identify and then copy examples of known anomalies to the ANOMALY_IMAGES_PATH specified in the _config_user_ input script. These anomalies can include events such as earthquakes from an existing catalog, instrument noise, anthropogenic disturbances, etc. Including these examples helps improve thresholding during the detection process.
 
 5. Train: 
 
 The `das_anomaly.train` module helps with randomly selecting train and test PSD images and training the model (with CPU or GPU) on anomaly-free PSD images. 
+
 ### Example
 ```python
 from das_anomaly.settings import SETTINGS
@@ -151,7 +153,7 @@ ImageSplitter(cfg).run()
 cfg = TrainAEConfig()
 AutoencoderTrainer(cfg).run()
 ```
-Note: Since the `TrainSplitConfig()` function randomly selects PSD images from the generated plots, you must ensure the training and testing datasets do not include obvious anomalies. If you have an excel sheet with time stamp of anomalies (such as a catalog), use the "exclude_known_events_from_training" in examples directory to exclude them. Or, manually inspect both the training and testing sets to ensure they do not contain apparent anomalies. Review their time- and frequency-domain representations, and remove any suspicious samples to maintain the quality of training.
+Note: Since the `TrainSplitConfig()` function randomly selects PSD images from the generated plots, you must ensure the training and testing datasets do not include obvious anomalies. If you have an excel sheet with time stamp of anomalies (such as a catalog), use the "exclude_known_events_from_training" in examples directory to exclude them. Or, manually inspect both the training and testing sets to ensure they do not contain apparent anomalies. Review their time- and frequency-domain plots, and remove any suspicious samples to maintain the quality of training.
 
 6. Test and set thresholds: 
 
@@ -160,6 +162,7 @@ Using the _validate_and_plot_density_ and _thresholding_f_score_ jupyter noteboo
 7. Run the trained model: 
 
 The `das_anomaly.detect` module uses the trained model to detect anomalies in the PSD images and writes their information (e.g., time stamp). It also copies the detected anomaly to the RESULTS_PATH. MPI can be used to distribute PSDs over CPUs. Then, using the `das_anomaly.count` module, count the number of detected anomalies and display their details and file paths.
+
 ### Example
 ```python
 from das_anomaly.count.counter import CounterConfig, AnomalyCounter
@@ -181,6 +184,6 @@ print(anomalies) # prints info on number of anomalies and path to them
 Still under development. Use with caution.
 
 ## Contact
-Ahmad Tourei, Colorado School of Mines
-
-tourei@mines.edu | ahmadtourei@gmail.com
+Ahmad Tourei 
+Colorado School of Mines
+ahmadtourei@gmail.com

@@ -1,5 +1,5 @@
 """
-Utility functions for anomaly detection in DAS datasets using autoencoders.
+Utility functions for the package.
 """
 
 from __future__ import annotations
@@ -10,13 +10,14 @@ import string
 import matplotlib
 
 matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.fftpack as ft
 import tensorflow as tf
+from PIL import Image
 from matplotlib import gridspec
 from matplotlib.colors import LinearSegmentedColormap
-from PIL import Image
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, UpSampling2D
 from tensorflow.keras.models import Sequential
 
@@ -151,7 +152,7 @@ def decoder(
 
 
 def density(encoder_model, batch_images, kde):
-    """Caulculate the density score."""
+    """Caulculate the density score for the a batch of PSDs."""
     # Flatten the encoder output because KDE from sklearn takes 1D vectors as input
     encoder_output_shape = encoder_model.output_shape
     out_vector_shape = (
@@ -269,7 +270,7 @@ def plot_spec(
     hide_axes=True,
     save_fig=True,
 ):
-    """Save the power spectral density (Channel-Frequency-Amplitude) plot."""
+    """Plot and/or save the spatial power spectral density (Channel-Frequency-Amplitude) image."""
     # Get the data
     strain_rate = patch_strain.transpose("time", "distance").data  # pragma: no cover
     # Get coords info

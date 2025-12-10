@@ -31,13 +31,14 @@ authors = [
   { name = "Ahmad Tourei", email = "ahmadtourei@gmail.com" }
 ]
 
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 
 classifiers = [
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
@@ -56,7 +57,7 @@ dependencies = [
 [project.optional-dependencies]
 
 extras = [
-    "mpi4py"
+    "mpi4py",
 ]
 
 test = [
@@ -69,7 +70,13 @@ test = [
 ]
 
 all = [
-    "das_anomaly[extras]"
+    "mpi4py",
+    "pre-commit",
+    "ruff",
+    "pooch",
+    "pytest",
+    "pytest-mock",
+    "pytest-cov",
 ]
 
 # --- URLs for project

@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --ntasks=24
+#SBATCH --ntasks=1
 #SBATCH -t 24:00:00
 #SBATCH -A YOUR_ACCOUNT
 #SBATCH --mem-per-cpu=128G
@@ -8,11 +8,15 @@
 echo "Job started at: $(date)"
 
 # Load modules and environment
-module load openmpi/gcc/64/4.1.5
 source activate dasanomaly
 
-# Run with MPI 
-mpirun -n $SLURM_NTASKS python -u detect_parallel.py
+# Run the script
+python << EOF
+from das_anomaly.detect import AnomalyDetector, DetectConfig
+
+cfg = DetectConfig()
+AnomalyDetector(cfg).run()
+EOF
 
 # Print end time
 echo "Job ended at: $(date)"
