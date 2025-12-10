@@ -3,6 +3,10 @@
 [![Licence](https://www.gnu.org/graphics/lgplv3-88x31.png)](https://www.gnu.org/licenses/lgpl.html)
 [![codecov](https://codecov.io/gh/dasdae/das-anomaly/branch/main/graph/badge.svg)](https://codecov.io/gh/dasdae/das-anomaly)
 
+<p align="center">
+  <img src="docs/figures/logo_v1.png" alt="Logo" width="300">
+</p>
+
 _das-anomaly_ is an open-source Python package for unsupervised anomaly detection in distributed acoustic sensing (DAS) datasets using an autoencoder-based deep learning algorithm. It is being developed by Ahmad Tourei under the supervision of Dr. Eileen R. Martin at Colorado School of Mines. 
 
 If you use _das-anomaly_ in your work, please cite the following:
